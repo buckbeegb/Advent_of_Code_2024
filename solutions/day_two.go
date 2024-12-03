@@ -1,4 +1,4 @@
-package main
+package solutions
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func day_two_part_one() {
+func Day_two_part_one() {
 	dat, err := os.ReadFile("./Full_Inputs/day_two.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_two.txt")
 	if err != nil {
@@ -33,7 +33,7 @@ func day_two_part_one() {
 	fmt.Println(safe_levels)
 }
 
-func day_two_part_two() {
+func Day_two_part_two() {
 	dat, err := os.ReadFile("./Full_Inputs/day_two.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_two.txt")
 	if err != nil {

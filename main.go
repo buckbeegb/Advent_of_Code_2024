@@ -1,8 +1,8 @@
 package main
 
 import (
+	"aoc2025/solutions"
 	"fmt"
-	"github.com/buckbeegb/Advent_of_Code_2024/solutions"
 	"time"
 )
 
@@ -10,13 +10,13 @@ func main() {
 	fmt.Println()
 	start := time.Now()
 	print("Day One Part One: ")
-	day_one_part_one()
+	solutions.Day_one_part_one()
 	print("Day One Part Two: ")
-	day_one_part_two()
+	solutions.Day_one_part_two()
 	print("Day Two Part One: ")
-	day_two_part_one()
+	solutions.Day_two_part_one()
 	print("Day Two Part Two: ")
-	day_two_part_two()
+	solutions.Day_two_part_two()
 	fmt.Println()
 	end := time.Now()
 	fmt.Println(end.Sub(start))
