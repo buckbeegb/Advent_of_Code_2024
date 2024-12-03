@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/buckbeegb/Advent_of_Code_2024/solutions"
 	"time"
 )
 
