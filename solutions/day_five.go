@@ -1,4 +1,4 @@
-package main
+package solutions
 
 import (
 	"bufio"
@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func day_three_part_one() {
-	dat, err := os.ReadFile("./Full_Inputs/day_three.txt")
-	// dat, err := os.ReadFile("./Test_Inputs/day_three.txt")
+func Day_five_part_one() {
+	dat, err := os.ReadFile("./Full_Inputs/day_five.txt")
+	// dat, err := os.ReadFile("./Test_Inputs/day_five.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -18,9 +18,9 @@ func day_three_part_one() {
 	for scanner.Scan() {
 	}
 }
-func day_three_part_two() {
-	dat, err := os.ReadFile("./Full_Inputs/day_three.txt")
-	// dat, err := os.ReadFile("./Test_Inputs/day_three.txt")
+func Day_five_part_two() {
+	dat, err := os.ReadFile("./Full_Inputs/day_five.txt")
+	// dat, err := os.ReadFile("./Test_Inputs/day_five.txt")
 	if err != nil {
 		panic(err)
 	}
