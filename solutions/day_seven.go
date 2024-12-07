@@ -3,7 +3,6 @@ package solutions
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -100,15 +99,19 @@ func test_valid(test_result int, remainder_list []int, test_cases [][]int) int {
 	for _, test_case := range test_cases {
 		result := remainder_list[0]
 		for i := 0; i < len(test_case); i++ {
+			next_num := remainder_list[i+1]
 			if test_case[i] == 0 {
-				result += remainder_list[i+1]
+				result += next_num
 			} else if test_case[i] == 1 {
-				result *= remainder_list[i+1]
+				result *= next_num
 			} else {
-				str_val := strconv.Itoa(remainder_list[i+1])
-				val_size := len(str_val)
-				result = int(math.Pow(10, float64(val_size))) * result
-				result += remainder_list[i+1]
+				if next_num < 10 {
+					result = result*10 + next_num
+				} else if next_num < 100 {
+					result = result*100 + next_num
+				} else if next_num < 1000 {
+					result = result*1000 + next_num
+				}
 			}
 			if result > test_result {
 				break
