@@ -31,7 +31,7 @@ func main() {
 	solutions.Day_five_part_two()
 	print("Day Six Part One: ")
 	solutions.Day_six_part_one()
-	print("Day Six Part Two: ")
+	print("Day Six Part Two (Test Answer): ")
 	solutions.Day_six_part_two()
 	print("Day Seven Part One: ")
 	solutions.Day_seven_part_one()

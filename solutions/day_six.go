@@ -60,8 +60,8 @@ func Day_six_part_one() {
 }
 
 func Day_six_part_two() {
-	dat, err := os.ReadFile("./Full_Inputs/day_six.txt")
-	// dat, err := os.ReadFile("./Test_Inputs/day_six.txt")
+	// dat, err := os.ReadFile("./Full_Inputs/day_six.txt")
+	dat, err := os.ReadFile("./Test_Inputs/day_six.txt")
 	if err != nil {
 		panic(err)
 	}
