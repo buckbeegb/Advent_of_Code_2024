@@ -8,16 +8,15 @@ import (
 	"strings"
 )
 
-func Day_seven_part_one() map[int]int {
+func Day_seven_part_one() {
 	dat, err := os.ReadFile("./Full_Inputs/day_seven.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_seven.txt")
 	if err != nil {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
-	valid_tests := 0
-	line_no := 0
-	passed_lines := make(map[int]int)
+	part_1_sum := 0
+	part_2_sum := 0
 	for scanner.Scan() {
 		split := strings.Split(scanner.Text(), ": ")
 		test_result, _ := strconv.Atoi(split[0])
@@ -28,47 +27,16 @@ func Day_seven_part_one() map[int]int {
 			remainder_list = append(remainder_list, remainder_int)
 		}
 		result := part_1_validation(test_result, remainder_list)
-		if result > 0 {
-			passed_lines[line_no] = test_result
+		part_1_sum += result
+		if result == 0 {
+			part_2_result := part_2_validation(test_result, remainder_list)
+			part_2_sum += part_2_result
 		}
-		valid_tests += result
-		line_no++
 	}
-	fmt.Println(valid_tests)
-	return passed_lines
-}
-
-func Day_seven_part_two(already_passed map[int]int) {
-	dat, err := os.ReadFile("./Full_Inputs/day_seven.txt")
-	// dat, err := os.ReadFile("./Test_Inputs/day_seven.txt")
-	if err != nil {
-		panic(err)
-	}
-	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
-	valid_tests := 0
-	largest_remainder_list := 0
-	row_num := 0
-	for scanner.Scan() {
-		if already_passed[row_num] > 0 {
-			valid_tests += already_passed[row_num]
-			row_num++
-			continue
-		}
-		split := strings.Split(scanner.Text(), ": ")
-		test_result, _ := strconv.Atoi(split[0])
-		remainders := strings.Split(split[1], " ")
-		remainder_list := []int{}
-		for _, remainder := range remainders {
-			remainder_int, _ := strconv.Atoi(remainder)
-			remainder_list = append(remainder_list, remainder_int)
-		}
-		if len(remainder_list) > largest_remainder_list {
-			largest_remainder_list = len(remainder_list)
-		}
-		valid_tests += part_2_validation(test_result, remainder_list)
-		row_num++
-	}
-	fmt.Println(valid_tests)
+	fmt.Print("Day Seven Part One: ")
+	fmt.Println(part_1_sum)
+	fmt.Print("Day Seven Part Two: ")
+	fmt.Println(part_1_sum + part_2_sum)
 }
 
 func part_1_validation(test_result int, remainder_list []int) int {
