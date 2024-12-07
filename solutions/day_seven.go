@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Day_seven_part_one() {
+func Day_seven_part_one() map[int]int {
 	dat, err := os.ReadFile("./Full_Inputs/day_seven.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_seven.txt")
 	if err != nil {
@@ -17,6 +17,12 @@ func Day_seven_part_one() {
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
 	valid_tests := 0
+	combinations := make(map[int][][]int)
+	for i := 0; i < 12; i++ {
+		combinations[i] = generateCombinations(i, 2)
+	}
+	line_no := 0
+	passed_lines := make(map[int]int)
 	for scanner.Scan() {
 		split := strings.Split(scanner.Text(), ": ")
 		test_result, _ := strconv.Atoi(split[0])
@@ -26,13 +32,18 @@ func Day_seven_part_one() {
 			remainder_int, _ := strconv.Atoi(remainder)
 			remainder_list = append(remainder_list, remainder_int)
 		}
-		test_cases := generateCombinations(len(remainder_list)-1, 2)
-		valid_tests += test_valid(test_result, remainder_list, test_cases)
+		result := test_valid(test_result, remainder_list, combinations[len(remainder_list)-1])
+		if result > 0 {
+			passed_lines[line_no] = test_result
+		}
+		valid_tests += test_valid(test_result, remainder_list, combinations[len(remainder_list)-1])
+		line_no++
 	}
 	fmt.Println(valid_tests)
+	return passed_lines
 }
 
-func Day_seven_part_two() {
+func Day_seven_part_two(already_passed map[int]int) {
 	dat, err := os.ReadFile("./Full_Inputs/day_seven.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_seven.txt")
 	if err != nil {
@@ -40,7 +51,18 @@ func Day_seven_part_two() {
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
 	valid_tests := 0
+	largest_remainder_list := 0
+	combinations := make(map[int][][]int)
+	for i := 0; i < 12; i++ {
+		combinations[i] = generateCombinations(i, 3)
+	}
+	row_num := 0
 	for scanner.Scan() {
+		if already_passed[row_num] > 0 {
+			valid_tests += already_passed[row_num]
+			row_num++
+			continue
+		}
 		split := strings.Split(scanner.Text(), ": ")
 		test_result, _ := strconv.Atoi(split[0])
 		remainders := strings.Split(split[1], " ")
@@ -49,8 +71,11 @@ func Day_seven_part_two() {
 			remainder_int, _ := strconv.Atoi(remainder)
 			remainder_list = append(remainder_list, remainder_int)
 		}
-		combinations := generateCombinations(len(remainder_list)-1, 3)
-		valid_tests += test_valid(test_result, remainder_list, combinations)
+		if len(remainder_list) > largest_remainder_list {
+			largest_remainder_list = len(remainder_list)
+		}
+		valid_tests += test_valid(test_result, remainder_list, combinations[len(remainder_list)-1])
+		row_num++
 	}
 	fmt.Println(valid_tests)
 }
@@ -84,6 +109,9 @@ func test_valid(test_result int, remainder_list []int, test_cases [][]int) int {
 				val_size := len(str_val)
 				result = int(math.Pow(10, float64(val_size))) * result
 				result += remainder_list[i+1]
+			}
+			if result > test_result {
+				break
 			}
 		}
 		if result == test_result {
