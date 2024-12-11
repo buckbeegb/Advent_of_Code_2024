@@ -93,57 +93,53 @@ func Day_six_part_two() {
 		current_point = Point{current_point.row + current_direction.row, current_point.col + current_direction.col}
 	}
 	total_valid_obstacles := 0
-	c1 := make(chan int)
-	c2 := make(chan int)
-	c3 := make(chan int)
-	c4 := make(chan int)
-	map1, map2, map3 := four_x_map(walking_map)
+	c := make(chan int)
 	keys := []Point{}
 	for key := range walked_on {
 		keys = append(keys, key)
 	}
-	for i := 0; i < len(keys); i += 4 {
+	w2, w3, w4 := four_x_map(walking_map)
+	i := 0
+	for i < len(keys) {
 		walking_map[keys[i].row][keys[i].col] = '#'
 		d1 := walked_on[keys[i]][0]
 		p1 := Point{keys[i].row - d1.row, keys[i].col - d1.col}
-		c1 <- walk_for_loop(walking_map, d1, p1)
-		walking_map[keys[i].row][keys[i].col] = '.'
+		go walk_for_loop(walking_map, d1, p1, c)
 		if i+1 < len(keys) {
-			map1[keys[i+1].row][keys[i+1].col] = '#'
+			w2[keys[i+1].row][keys[i+1].col] = '#'
 			d2 := walked_on[keys[i+1]][0]
 			p2 := Point{keys[i+1].row - d2.row, keys[i+1].col - d2.col}
-			c2 <- walk_for_loop(map1, d2, p2)
-			map1[keys[i+1].row][keys[i+1].col] = '.'
+			go walk_for_loop(w2, d2, p2, c)
+			w2[keys[i+1].row][keys[i+1].col] = '.'
 		} else {
-			c2 <- 0
+			c <- 0
 		}
 		if i+2 < len(keys) {
-			map2[keys[i+2].row][keys[i+2].col] = '#'
+			w3[keys[i+2].row][keys[i+2].col] = '#'
 			d3 := walked_on[keys[i+2]][0]
-			p3 := Point{keys[i+2].row - d3.row, keys[i+2].col - d3.col}
-			c3 <- walk_for_loop(map2, d3, p3)
-			map2[keys[i+2].row][keys[i+2].col] = '.'
+			p3 := Point{keys[i+1].row - d3.row, keys[i+1].col - d3.col}
+			go walk_for_loop(w3, d3, p3, c)
+			w3[keys[i+2].row][keys[i+2].col] = '.'
 		} else {
-			c3 <- 0
+			c <- 0
 		}
 		if i+3 < len(keys) {
-			map3[keys[i+3].row][keys[i+3].col] = '#'
+			w4[keys[i+3].row][keys[i+3].col] = '#'
 			d4 := walked_on[keys[i+3]][0]
 			p4 := Point{keys[i+3].row - d4.row, keys[i+3].col - d4.col}
-			c4 <- walk_for_loop(map3, d4, p4)
-			map3[keys[i+3].row][keys[i+3].col] = '.'
+			go walk_for_loop(w4, d4, p4, c)
+			w4[keys[i+3].row][keys[i+3].col] = '.'
 		} else {
-			c4 <- 0
+			c <- 0
 		}
-		total_valid_obstacles += <-c1
-		total_valid_obstacles += <-c2
-		total_valid_obstacles += <-c3
-		total_valid_obstacles += <-c4
+		i += 4
+		walking_map[keys[i].row][keys[i].col] = '.'
+		total_valid_obstacles += <-c + <-c + <-c + <-c
 	}
 	fmt.Println(total_valid_obstacles)
 }
 
-func walk_for_loop(walking_map [][]rune, initial_direction Point, current_point Point) int {
+func walk_for_loop(walking_map [][]rune, initial_direction Point, current_point Point, c chan int) {
 	current_direction := initial_direction
 	infinite_loop := false
 	walked_on := make(map[Point][]Point)
@@ -172,9 +168,9 @@ func walk_for_loop(walking_map [][]rune, initial_direction Point, current_point 
 		current_point = Point{current_point.row + current_direction.row, current_point.col + current_direction.col}
 	}
 	if infinite_loop {
-		return 1
+		c <- 1
 	}
-	return 0
+	c <- 0
 }
 
 func four_x_map(walking_map [][]rune) ([][]rune, [][]rune, [][]rune) {
