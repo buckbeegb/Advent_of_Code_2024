@@ -30,9 +30,9 @@ func main() {
 	print("Day Five Part Two: ")
 	solutions.Day_five_part_two()
 	print("Day Six Part One: ")
-	solutions.Day_six_part_one()
+	// solutions.Day_six_part_one()
 	print("Day Six Part Two (Test Answer): ")
-	solutions.Day_six_part_two()
+	// solutions.Day_six_part_two()
 	// print("Day Seven Part One: ")
 	solutions.Day_seven_part_one()
 	// Converted the day 7 solution into one function to try to optimize for time
