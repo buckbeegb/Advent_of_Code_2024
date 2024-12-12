@@ -16,19 +16,19 @@ func Day_eleven_part_one() {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
-	rocks := []int{}
+	unique_rocks := make(map[int]int)
 	for scanner.Scan() {
 		split_input := strings.Split(scanner.Text(), " ")
 		for _, item := range split_input {
 			rock, _ := strconv.Atoi(item)
-			rocks = append(rocks, rock)
+			unique_rocks[rock]++
 		}
 	}
 	for i := 0; i < 25; i++ {
-		new_rocks := []int{}
-		for _, rock := range rocks {
+		new_unique_rocks := make(map[int]int)
+		for rock := range unique_rocks {
 			if rock == 0 {
-				new_rocks = append(new_rocks, 1)
+				new_unique_rocks[1] += unique_rocks[0]
 				continue
 			}
 			length := math.Log10(float64(rock))
@@ -36,15 +36,19 @@ func Day_eleven_part_one() {
 			exp := int(math.Pow(10, float64(num_digits/2)))
 			if num_digits%2 == 0 {
 				new_rock := rock / exp
-				new_rocks = append(new_rocks, new_rock)
-				new_rocks = append(new_rocks, rock-(new_rock*exp))
+				new_unique_rocks[new_rock] += unique_rocks[rock]
+				new_unique_rocks[rock-(new_rock*exp)] += unique_rocks[rock]
 			} else {
-				new_rocks = append(new_rocks, rock*2024)
+				new_unique_rocks[rock*2024] += unique_rocks[rock]
 			}
 		}
-		rocks = new_rocks
+		unique_rocks = new_unique_rocks
 	}
-	fmt.Println(len(rocks))
+	total_rocks := 0
+	for key := range unique_rocks {
+		total_rocks += unique_rocks[key]
+	}
+	fmt.Println(total_rocks)
 }
 
 func Day_eleven_part_two() {
