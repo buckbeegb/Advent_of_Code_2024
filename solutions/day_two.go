@@ -68,7 +68,6 @@ func Day_two_part_two() {
 				break
 			}
 		}
-		// fmt.Println("level is %b", safe_level)
 	}
 	fmt.Println(safe_levels)
 
