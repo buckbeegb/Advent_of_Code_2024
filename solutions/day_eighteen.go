@@ -138,7 +138,7 @@ func Day_eighteen_part_two() {
 			i = min_range + (max_range-min_range)/2
 		}
 	}
-	fmt.Println(i, obstacles[i].col, obstacles[i].row)
+	fmt.Printf("%d,%d\n", obstacles[i].col, obstacles[i].row)
 }
 
 func print_path(maze [][]string, path map[Point]bool) {
