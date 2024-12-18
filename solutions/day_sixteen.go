@@ -88,7 +88,7 @@ func Day_sixteen_part_one() {
 	fmt.Println(position_map[ending_point].Score)
 }
 
-func Day_sixteen_part_two() {
+func Day_sixteen_part_two_old() {
 	dat, err := os.ReadFile("./Full_Inputs/day_sixteen.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_sixteen.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_sixteen_alternate.txt")
@@ -186,6 +186,45 @@ func Day_sixteen_part_two() {
 	fmt.Println(seats)
 	print_walked_maze(maze, seat_map)
 }
+
+// func Day_sixteen_part_two() {
+// 	dat, err := os.ReadFile("./Full_Inputs/day_sixteen.txt")
+// 	// dat, err := os.ReadFile("./Test_Inputs/day_sixteen.txt")
+// 	// dat, err := os.ReadFile("./Test_Inputs/day_sixteen_alternate.txt")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	maze := [][]string{}
+// 	starting_point := Point{0, 0}
+// 	ending_point := Point{0, 0}
+// 	starting_rotation := Point{0, -1}
+// 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
+// 	for scanner.Scan() {
+// 		maze = append(maze, []string{})
+// 		for _, char := range scanner.Text() {
+// 			if char == 'S' {
+// 				starting_point = Point{len(maze) - 1, len(maze[len(maze)-1])}
+// 			} else if char == 'E' {
+// 				ending_point = Point{len(maze) - 1, len(maze[len(maze)-1])}
+// 			}
+// 			maze[len(maze)-1] = append(maze[len(maze)-1], string(char))
+// 		}
+// 	}
+// 	position_map := make(map[Pos_Dir][]Path_Part_Two)
+// 	start := Pos_Dir{starting_point, starting_rotation}
+// 	position_map[start] = []Path_Part_Two{Path_Part_Two{starting_point, starting_rotation, 0, []Pos_Dir{}}}
+// 	active_paths := make(map[Pos_Dir]int)
+// 	path_num := 0
+// 	ending := 99999999
+// 	for len(active_paths) > 0 {
+// 		for _, cur_path := range active_paths {
+// 			for _, direction := range []Point{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+// 				new_pos := Point{cur_path.Position.row + direction.row, cur_path.Position.col + direction.col}
+//
+// 			}
+// 		}
+// 	}
+// }
 
 func print_maze(maze [][]string) {
 	for i := 0; i < len(maze); i++ {
