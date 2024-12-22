@@ -132,5 +132,4 @@ func Day_twenty_part_two() {
 		}
 	}
 	fmt.Println(cheats[100])
-	// fmt.Println(cheats)
 }
