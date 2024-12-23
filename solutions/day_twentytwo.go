@@ -8,18 +8,6 @@ import (
 	"strings"
 )
 
-type Prev_Four struct {
-	one   int
-	two   int
-	three int
-	four  int
-}
-
-type Price_Id struct {
-	price    int
-	location int
-}
-
 func Day_twentytwo_part_one() {
 	dat, err := os.ReadFile("./Full_Inputs/day_twentytwo.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_twentytwo.txt")
@@ -54,28 +42,30 @@ func Day_twentytwo_part_two() {
 		secret, _ := strconv.Atoi(scanner.Text())
 		initial_secrets = append(initial_secrets, secret)
 	}
-	total_tracks := make(map[Prev_Four]int)
+	// total_tracks := make(map[Prev_Four]int)
+	total_tracks := make([]int, 130321)
 	max_price := 0
 	for _, secret := range initial_secrets {
-		track_scans := make(map[Prev_Four]bool)
+		track_scans := make([]bool, 130321)
 		prev_price := secret % 10
-		prev_four := Prev_Four{0, 0, 0, 0}
+		a, b, c, d := 0, 0, 0, 0
 		for i := 0; i < 2000; i++ {
 			secret = gen_new_secret(secret)
 			price := secret % 10
-			delta := price - prev_price
-			prev_price = price
-			prev_four = Prev_Four{prev_four.two, prev_four.three, prev_four.four, delta}
+			delta := 9 + price - prev_price
+			a, b, c, d = b, c, d, delta
 			if i < 3 {
 				continue
 			}
-			if !track_scans[prev_four] {
-				track_scans[prev_four] = true
-				total_tracks[prev_four] += price
-				if total_tracks[prev_four] > max_price {
-					max_price = total_tracks[prev_four]
+			index := d + (19 * c) + (361 * b) + (6859 * a)
+			if !track_scans[index] {
+				track_scans[index] = true
+				total_tracks[index] += price
+				if total_tracks[index] > max_price {
+					max_price = total_tracks[index]
 				}
 			}
+			prev_price = price
 		}
 	}
 	fmt.Println(max_price)
