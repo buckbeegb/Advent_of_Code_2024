@@ -126,5 +126,4 @@ func Day_twentythree_part_two() {
 	}
 	sort.Strings(clique_list)
 	fmt.Println(strings.Join(clique_list, ","))
-	fmt.Println(len(max_clique))
 }
