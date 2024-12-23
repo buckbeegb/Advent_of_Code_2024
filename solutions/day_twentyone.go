@@ -19,6 +19,13 @@ type Det_Seq struct {
 	depth int
 }
 
+type Tone_Path struct {
+	tail  Point
+	moves []string
+}
+
+var depth_cache map[Det_Seq]int
+
 func Day_twentyone_part_one() {
 	dat, err := os.ReadFile("./Full_Inputs/day_twentyone.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_twentyone.txt")
@@ -30,11 +37,14 @@ func Day_twentyone_part_one() {
 	for scanner.Scan() {
 		sequences = append(sequences, strings.Split(scanner.Text(), ""))
 	}
+	dir_keypad := init_dir_keypad()
+	keypad := init_keypad()
+	depth_cache = make(map[Det_Seq]int)
 	sum := 0
-	for _, sequence := range sequences {
-		combined := strings.Join(sequence[:3], "")
+	for _, seq := range sequences {
+		sol := eval_path(keypad, dir_keypad, append([]string{"A"}, seq...), 2)
+		combined := strings.Join(seq[:3], "")
 		val, _ := strconv.Atoi(combined)
-		sol, _ := solve_sequence(sequence)
 		sum += (val * sol)
 	}
 	fmt.Println(sum)
@@ -52,248 +62,96 @@ func Day_twentyone_part_two() {
 		sequences = append(sequences, strings.Split(scanner.Text(), ""))
 	}
 	dir_keypad := init_dir_keypad()
-	dir_sequences := generate_dir_sequences(dir_keypad)
-	sums := []int{}
-	base_sequences := [][]string{}
-	for _, sequence := range sequences {
-		combined := strings.Join(sequence[:3], "")
+	keypad := init_keypad()
+	depth_cache = make(map[Det_Seq]int)
+	sum := 0
+	for _, seq := range sequences {
+		sol := eval_path(keypad, dir_keypad, append([]string{"A"}, seq...), 25)
+		combined := strings.Join(seq[:3], "")
 		val, _ := strconv.Atoi(combined)
-		_, seq := solve_sequence(sequence)
-		base_sequences = append(base_sequences, []string{})
-		for i := 0; i < len(seq); i++ {
-			for j := 0; j < len(seq[i]); j++ {
-				base_sequences[len(base_sequences)-1] = append(base_sequences[len(base_sequences)-1], seq[i][j])
-			}
-		}
-		sums = append(sums, val)
+		sum += (val * sol)
 	}
-	move_cache := make(map[Det_Seq]int)
-	total_sum := 0
-	for j, sequence := range base_sequences {
-		moves := append([]string{"A"}, sequence...)
-		total_complexity := 0
-		for i := 0; i < len(moves)-1; i++ {
-			total_complexity += eval_pair([]string{moves[i], moves[i+1]}, dir_sequences, move_cache, 25)
-		}
-		total_sum += (sums[j] * total_complexity)
-	}
-	fmt.Println(total_sum)
+	fmt.Println(sum)
 }
 
-func eval_pair(sequence []string, dir_sequences map[Mini_Seq][]string, move_cache map[Det_Seq]int, depth int) int {
-	if depth == 1 {
-		return len(dir_sequences[Mini_Seq{sequence[0], sequence[1]}])
-	}
+func eval_path(keypad map[string]Point, dir_keypad map[string]Point, sequence []string, depth int) int {
 	sequence_sum := 0
+	dir_map := dir_map_to_str()
 	for i := 0; i < len(sequence)-1; i++ {
-		_, found := move_cache[Det_Seq{sequence[i], sequence[i+1], depth}]
-		if !found {
-			dir_seq := append([]string{"A"}, dir_sequences[Mini_Seq{sequence[i], sequence[i+1]}]...)
-			for j := 0; j < len(dir_seq)-1; j++ {
-				res := eval_pair([]string{dir_seq[j], dir_seq[j+1]}, dir_sequences, move_cache, depth-1)
-				move_cache[Det_Seq{dir_seq[j], dir_seq[j+1], depth - 1}] = res
-				sequence_sum += res
-			}
-		} else {
-			sequence_sum += move_cache[Det_Seq{sequence[i], sequence[i+1], depth}]
+		if length, found := depth_cache[Det_Seq{sequence[i], sequence[i+1], depth}]; found {
+			sequence_sum += length
+			continue
 		}
+		_, e1 := strconv.Atoi(sequence[i])
+		_, e2 := strconv.Atoi(sequence[i+1])
+		var possible_paths [][]string
+		if e1 == nil || e2 == nil {
+			possible_paths = bfs_dir_sequence(keypad, sequence[i], sequence[i+1], dir_map)
+		} else {
+			possible_paths = bfs_dir_sequence(dir_keypad, sequence[i], sequence[i+1], dir_map)
+		}
+		min_path := 0
+		for _, path := range possible_paths {
+			if depth == 0 {
+				if len(path) < min_path || min_path == 0 {
+					min_path = len(path)
+				}
+			} else {
+				test_path := eval_path(keypad, dir_keypad, append([]string{"A"}, path...), depth-1)
+				if test_path < min_path || min_path == 0 {
+					min_path = test_path
+				}
+			}
+		}
+		depth_cache[Det_Seq{sequence[i], sequence[i+1], depth}] = min_path
+		sequence_sum += min_path
 	}
 	return sequence_sum
 }
 
-func generate_dir_sequences(keypad map[string]Point) map[Mini_Seq][]string {
-	inputs := []string{"A", "<", ">", "^", "v"}
-	combos := make(map[Mini_Seq][]string)
-	for i := 0; i < len(inputs); i++ {
-		for j := 0; j < len(inputs); j++ {
-			combos[Mini_Seq{inputs[i], inputs[j]}] = []string{}
-		}
-	}
-	for combo := range combos {
-		combos[combo] = shortest_dir_sequence(keypad, combo.start, combo.end)
-	}
-	return combos
-}
-
-func shortest_dir_sequence(keypad map[string]Point, start string, end string) []string {
-	start_point := keypad[start]
-	end_point := keypad[end]
-	if start_point == end_point {
-		return []string{"A"}
-	}
-	output := []string{}
-	for start_point != end_point {
-		if start_point.col > end_point.col && !(start_point.row == 0 && start_point.col == 1) && !(start == "A" && end == "<" && start_point.row == 0) {
-			start_point.col--
-			output = append(output, "<")
-		} else if start_point.row < end_point.row {
-			start_point.row++
-			output = append(output, "v")
-		} else if start_point.col < end_point.col {
-			start_point.col++
-			output = append(output, ">")
-		} else {
-			start_point.row--
-			output = append(output, "^")
-		}
-	}
-	output = append(output, "A")
-	return output
-}
-
-func solve_sequence(sequence []string) (int, [][]string) {
-	keypad := init_keypad()
-	dir_keypad := init_dir_keypad()
-	// master_len := make(map[Point]int)
-	total_seq := 0
-	start_char := "A"
-	best_seq := [][]string{}
-	for _, char := range sequence {
-		best_seq_seg := []string{}
-		keypad_sequence := find_keypad_sequence(keypad, char, start_char)
-		min_seq := 0
-		// fmt.Printf("Keypad path: %s\n", keypad_sequence)
-		for _, kseq := range keypad_sequence {
-			start_kseq_char := "A"
-			keypad_sum := 0
-			for _, k_char := range kseq {
-				l1_sequence := find_dir_keypad_sequences(dir_keypad, k_char, start_kseq_char)
-				// fmt.Printf("First DirPad path: %s\n", l1_sequence)
-				l1_sum := 0
-				for _, l1seq := range l1_sequence {
-					seq_sum := 0
-					start_l2seq_char := "A"
-					for _, l1char := range l1seq {
-						seq_sum += find_dir_keypad_len(dir_keypad, l1char, start_l2seq_char)
-						start_l2seq_char = l1char
-					}
-					if l1_sum == 0 || seq_sum < l1_sum {
-						l1_sum = seq_sum
-					}
-				}
-				keypad_sum += l1_sum
-				start_kseq_char = k_char
-			}
-			if min_seq == 0 || keypad_sum < min_seq {
-				min_seq = keypad_sum
-				best_seq_seg = kseq
-			}
-		}
-		best_seq = append(best_seq, best_seq_seg)
-		start_char = char
-		total_seq += min_seq
-	}
-	return total_seq, best_seq
-}
-
-func find_dir_keypad_len(keypad map[string]Point, action string, start_str string) int {
-	start := keypad[start_str]
-	dir_map := dir_map_to_str()
-	paths := make(map[string]Point)
-	paths[""] = start
-	end := keypad[action]
-	if start == end {
-		return 1
-	}
-	counter := 1
-	for len(paths) > 0 {
-		new_paths := make(map[string]Point)
-		for key, value := range paths {
-			for _, dir := range []Point{{0, 1}, {0, -1}, {1, 0}, {-1, 0}} {
-				new_point := Point{value.row + dir.row, value.col + dir.col}
-				if !in_bounds_dir(new_point) {
-					continue
-				}
-				if abs_distance(new_point, end) < abs_distance(value, end) {
-					if new_point == end {
-						return counter + 1
-					} else {
-						new_paths[key+dir_map[dir]] = new_point
-					}
-				}
-			}
-		}
-		paths = new_paths
-		counter++
-	}
-	return counter
-}
-
-func find_dir_keypad_sequences(keypad map[string]Point, action string, start_str string) [][]string {
-	start := keypad[start_str]
-	dir_map := dir_map_to_str()
-	final_paths := [][]string{}
-	paths := make(map[string]Point)
-	paths[""] = start
-	end := keypad[action]
-	if start == end {
+func bfs_dir_sequence(keypad map[string]Point, start string, end string, dir_map map[Point]string) [][]string {
+	start_pos := keypad[start]
+	end_pos := keypad[end]
+	if start_pos == end_pos {
 		return [][]string{{"A"}}
 	}
-	for len(paths) > 0 {
-		new_paths := make(map[string]Point)
-		for key, value := range paths {
+	paths := []Tone_Path{{start_pos, []string{}}}
+	finished_paths := [][]string{}
+	i := 0
+	for len(paths) > 0 || i == 0 {
+		new_paths := []Tone_Path{}
+		for _, tpath := range paths {
+			path := tpath.tail
 			for _, dir := range []Point{{0, 1}, {0, -1}, {1, 0}, {-1, 0}} {
-				new_point := Point{value.row + dir.row, value.col + dir.col}
-				if !in_bounds_dir(new_point) {
+				new_pos := Point{path.row + dir.row, path.col + dir.col}
+				if new_pos == end_pos {
+					finished_paths = append(finished_paths, append(append(tpath.moves, dir_map[dir]), "A"))
 					continue
 				}
-				if abs_distance(new_point, end) < abs_distance(value, end) {
-					if new_point == end {
-						final_paths = append(final_paths, strings.Split(key+dir_map[dir]+"A", ""))
-					} else {
-						new_paths[key+dir_map[dir]] = new_point
-					}
+				if in_bounds(new_pos, keypad) && abs_distance(new_pos, end_pos) < abs_distance(path, end_pos) {
+					new_paths = append(new_paths, Tone_Path{new_pos, append(tpath.moves, dir_map[dir])})
 				}
 			}
 		}
 		paths = new_paths
+		i++
 	}
-	return final_paths
+	return finished_paths
 }
 
-func find_keypad_sequence(keypad map[string]Point, action string, start_str string) [][]string {
-	start := keypad[start_str]
-	dir_map := dir_map_to_str()
-	final_paths := [][]string{}
-	paths := make(map[string]Point)
-	paths[""] = start
-	end := keypad[action]
-	for len(paths) > 0 {
-		new_paths := make(map[string]Point)
-		for key, value := range paths {
-			for _, dir := range []Point{{0, 1}, {0, -1}, {1, 0}, {-1, 0}} {
-				new_point := Point{value.row + dir.row, value.col + dir.col}
-				if !in_bounds(new_point) {
-					continue
-				}
-				if abs_distance(new_point, end) < abs_distance(value, end) {
-					if new_point == end {
-						final_paths = append(final_paths, strings.Split(key+dir_map[dir]+"A", ""))
-					} else {
-						new_paths[key+dir_map[dir]] = new_point
-					}
-				}
-			}
+func in_bounds(point Point, keypad map[string]Point) bool {
+	if _, found := keypad["1"]; found {
+		if point.row < 0 || point.row > 3 || point.col < 0 || point.col > 2 {
+			return false
+		} else if point.row == 3 && point.col == 0 {
+			return false
 		}
-		paths = new_paths
-	}
-	return final_paths
-}
-
-func in_bounds(point Point) bool {
-	if point.row < 0 || point.row > 3 || point.col < 0 || point.col > 2 {
-		return false
-	} else if point.row == 3 && point.col == 0 {
-		return false
-	}
-	return true
-}
-
-func in_bounds_dir(point Point) bool {
-	if point.row < 0 || point.row > 1 || point.col < 0 || point.col > 2 {
-		return false
-	} else if point.row == 0 && point.col == 0 {
-		return false
+	} else {
+		if point.row < 0 || point.row > 1 || point.col < 0 || point.col > 2 {
+			return false
+		} else if point.row == 0 && point.col == 0 {
+			return false
+		}
 	}
 	return true
 }
