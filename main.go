@@ -145,12 +145,12 @@ func main() {
 		print("Day Twenty Two Part Two: ")
 		solutions.Day_twentytwo_part_two()
 	}
-	if run == -1 || run == 23 {
-		print("Day Twenty Three Part One: ")
-		solutions.Day_twentythree_part_one()
-		print("Day Twenty Three Part Two: ")
-		solutions.Day_twentythree_part_two()
-	}
+	// if run == -1 || run == 23 {
+	// 	print("Day Twenty Three Part One: ")
+	// 	solutions.Day_twentythree_part_one()
+	// 	print("Day Twenty Three Part Two: ")
+	// 	solutions.Day_twentythree_part_two()
+	// }
 	if run == -1 || run == 24 {
 		print("Day Twenty Four Part One: ")
 		solutions.Day_twentyfour_part_one()
