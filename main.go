@@ -160,8 +160,6 @@ func main() {
 	if run == -1 || run == 25 {
 		print("Day Twenty Five Part One: ")
 		solutions.Day_twentyfive_part_one()
-		print("Day Twenty Five Part Two: ")
-		solutions.Day_twentyfive_part_two()
 	}
 	fmt.Println()
 	end := time.Now()
