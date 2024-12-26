@@ -18,8 +18,7 @@ func Day_one_part_one() {
 	var left_list []int
 	var right_list []int
 	for scanner.Scan() {
-		input_line := scanner.Text()
-		split_input := strings.Split(input_line, "   ")
+		split_input := strings.Split(scanner.Text(), "   ")
 		left, _ := strconv.Atoi(split_input[0])
 		right, _ := strconv.Atoi(split_input[1])
 		left_list = append(left_list, left)
@@ -37,6 +36,7 @@ func Day_one_part_one() {
 	}
 	fmt.Println(total_delta)
 }
+
 func Day_one_part_two() {
 	dat, err := os.ReadFile("./Full_Inputs/day_one.txt")
 	// dat, err := os.ReadFile("./Test_Inputs/day_one.txt")
